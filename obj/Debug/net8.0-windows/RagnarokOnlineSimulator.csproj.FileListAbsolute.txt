@@ -1,0 +1,16 @@
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.exe
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.deps.json
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.runtimeconfig.json
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.pdb
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.Form1.resources
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.csproj.GenerateResource.cache
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.AssemblyInfoInputs.cache
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.AssemblyInfo.cs
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.csproj.CoreCompileInputs.cache
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\refint\RagnarokOnlineSimulator.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.pdb
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.genruntimeconfig.cache
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\ref\RagnarokOnlineSimulator.dll

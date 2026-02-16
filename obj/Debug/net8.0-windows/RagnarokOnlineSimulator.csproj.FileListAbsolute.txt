@@ -3,7 +3,6 @@ C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-w
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.runtimeconfig.json
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.dll
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\RagnarokOnlineSimulator.pdb
-C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.Form1.resources
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.csproj.GenerateResource.cache
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.AssemblyInfoInputs.cache
@@ -14,3 +13,17 @@ C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-w
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.pdb
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.genruntimeconfig.cache
 C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\ref\RagnarokOnlineSimulator.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.sourcelink.json
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\runtimes\win-x86\native\WebView2Loader.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\runtimes\win-x64\native\WebView2Loader.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\runtimes\win-arm64\native\WebView2Loader.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Core.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.WinForms.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Wpf.dll
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Core.xml
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.WinForms.xml
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Wpf.xml
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.csproj.AssemblyReference.cache
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\Ragnarok.98D9D06D.Up2Date
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\bin\Debug\net8.0-windows\www\stat.html
+C:\Users\Thianiiii\Documents\C# Codes\RagnarokOnlineSimulator\obj\Debug\net8.0-windows\RagnarokOnlineSimulator.MainForm.resources

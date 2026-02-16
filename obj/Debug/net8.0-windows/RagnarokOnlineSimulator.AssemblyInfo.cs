@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RagnarokOnlineSimulator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+91dfd6bd1fb01dba0640974b00b4695bb6f17c30")]
 [assembly: System.Reflection.AssemblyProductAttribute("RagnarokOnlineSimulator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RagnarokOnlineSimulator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

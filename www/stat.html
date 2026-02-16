@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RO Stat Simulator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background: #1a1614;
+            color: #e8dcc8;
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.4;
+            color-scheme: dark;
+        }
+        .header {
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            color: #e8dcc8;
+            padding: 14px 24px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            border-bottom: 1px solid #4a423a;
+        }
+        .main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 24px 32px;
+        }
+        .app-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        .character-slot {
+            position: sticky;
+            top: 20px;
+        }
+        .character-frame {
+            background: linear-gradient(180deg, #2e2a26 0%, #252220 100%);
+            border: 2px solid #4a423a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+            text-align: center;
+        }
+        .character-sprite {
+            width: 100px;
+            height: 120px;
+            margin: 0 auto 16px;
+            background: #1a1614;
+            border-radius: 8px;
+            border: 1px solid #4a423a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .character-sprite svg {
+            width: 70%;
+            height: 70%;
+            opacity: 0.9;
+        }
+        .character-sprite.job-0 svg { color: #8b7355; }
+        .character-sprite.job-1 svg { color: #d45448; }
+        .character-sprite.job-2 svg { color: #a86cd4; }
+        .character-sprite.job-3 svg { color: #4cb070; }
+        .job-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #b8956e;
+            margin-bottom: 14px;
+        }
+        .stats-column { min-width: 0; }
+        .panel {
+            background: linear-gradient(180deg, #2e2a26 0%, #252220 100%);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+            border: 1px solid #4a423a;
+        }
+        .panel-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #b8956e;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3d3630;
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .field label {
+            display: block;
+            font-size: 0.72rem;
+            color: #8b7355;
+            margin-bottom: 6px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            border: 1px solid #4a423a;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            background: #1a1614;
+            color: #e8dcc8;
+            font-family: inherit;
+        }
+        input[type="text"] { width: 52px; text-align: center; }
+        select { min-width: 110px; cursor: pointer; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #b8956e;
+            box-shadow: 0 0 0 2px rgba(184,149,110,0.3);
+        }
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+        .stat-box {
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid #4a423a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .stat-box .label { font-size: 0.7rem; color: #c4b59a; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .stat-box input {
+            width: 100%;
+            background: #1a1614;
+            border: 1px solid #4a423a;
+            color: #e8dcc8;
+            font-weight: 600;
+        }
+        .stat-box input:focus { border-color: #b8956e; box-shadow: 0 0 0 2px rgba(184,149,110,0.3); }
+        .stat-box .bonus {
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: rgba(124,184,232,0.2);
+            border: 1px solid rgba(124,184,232,0.4);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #7cb8e8;
+        }
+        .stat-box .bonus::before { content: "Bonus +"; font-weight: 500; }
+        .stat-box .req {
+            margin-top: 6px;
+            padding: 3px 6px;
+            background: rgba(184,149,110,0.15);
+            border: 1px solid rgba(184,149,110,0.35);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #d4a84a;
+        }
+        .stat-box .req::before { content: "Pts to +1: "; font-weight: 500; color: #8b7355; }
+        .stat-box.str { border-top: 2px solid #d45448; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(212,84,72,0.3); }
+        .stat-box.agi { border-top: 2px solid #4cb070; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(76,176,112,0.3); }
+        .stat-box.vit { border-top: 2px solid #d45448; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(212,84,72,0.3); }
+        .stat-box.int { border-top: 2px solid #a86cd4; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(168,108,212,0.3); }
+        .stat-box.dex { border-top: 2px solid #5a9ae8; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(90,154,232,0.3); }
+        .stat-box.luk { border-top: 2px solid #e8b040; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(232,176,64,0.3); }
+        .readouts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .readout {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            padding: 8px 14px;
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid #4a423a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.2);
+            color: #c4b59a;
+        }
+        .readout .key { color: #8b7355; font-size: 0.75rem; }
+        .readout .val, .readout span:not(.key) { font-weight: 600; font-variant-numeric: tabular-nums; color: #e8dcc8; }
+        .readout.hp .val { color: #e87870; }
+        .readout.sp .val { color: #70b0e8; }
+        .readout.aspd .val { color: #60c878; }
+        .readout.points {
+            border-color: #b8956e;
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            box-shadow: inset 0 0 0 1px rgba(184,149,110,0.4), 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .readout.points .val { color: #d4a84a; font-size: 0.95rem; }
+        .buffs-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+        .buffs-row .field { flex: 0 0 auto; }
+        .checkbox-wrap { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+        .checkbox-wrap input { width: 16px; height: 16px; accent-color: #b8956e; }
+        .checkbox-wrap label { margin: 0; font-size: 0.85rem; color: #c4b59a; }
+        .res-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .res-chip {
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            border: 1px solid #4a423a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .res-chip .key { color: #8b7355; font-size: 0.7rem; margin-bottom: 2px; }
+        .res-chip .val { font-weight: 600; font-variant-numeric: tabular-nums; color: #e8dcc8; }
+        .vitals {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .character-frame .vitals {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+        .character-frame .vital { padding: 10px; }
+        .vital {
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #4a423a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .vital .key { font-size: 0.7rem; color: #8b7355; margin-bottom: 4px; }
+        .vital .val { font-weight: 600; font-size: 1rem; font-variant-numeric: tabular-nums; color: #e8dcc8; }
+        .vital .sub { font-size: 0.65rem; color: #6b5d4d; margin-top: 2px; }
+        .vital.hp .val { color: #e87870; }
+        .vital.sp .val { color: #70b0e8; }
+        .vital.wt .val { color: #d4a84a; }
+        #input_error, #overcap_error { color: #e87870; font-size: 0.8rem; margin-top: 10px; }
+        #input_error { display: none; }
+        #overcap_error { display: none; }
+    </style>
+</head>
+<body>
+    <header class="header">Stat Simulator</header>
+
+    <main class="main">
+        <div class="app-layout">
+            <aside class="character-slot">
+                <div class="character-frame">
+                    <div class="character-sprite job-0" id="char_sprite">
+                        <svg viewBox="0 0 64 80" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="18" r="10"/>
+                            <path d="M26 32c-4 4-8 12-8 20v20h28V52c0-8-4-16-8-20-2-2-4-2-6-2H32c-2 0-4 0-6 2z"/>
+                            <path d="M20 38l4 2v8l-4 2M44 38l-4 2v8l4 2" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    <div class="job-name" id="char_job">Novice</div>
+                    <div class="vitals">
+                        <div class="vital hp">
+                            <div class="key">HP</div>
+                            <div class="val" id="disp_max_hp">40</div>
+                            <div class="sub" id="disp_hp_regen">1/6s</div>
+                        </div>
+                        <div class="vital sp">
+                            <div class="key">SP</div>
+                            <div class="val" id="disp_max_sp">11</div>
+                            <div class="sub" id="disp_sp_regen">1/8s</div>
+                        </div>
+                        <div class="vital wt">
+                            <div class="key">Weight</div>
+                            <div class="val" id="disp_weight">2030</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            <div class="stats-column">
+        <div class="panel">
+            <div class="panel-title">Character</div>
+            <div class="grid-3">
+                <div class="field">
+                    <label>Job</label>
+                    <select id="jid">
+                        <option value="0">Novice</option>
+                        <option value="1">Swordman</option>
+                        <option value="2">Magician</option>
+                        <option value="3">Archer</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Base Lv</label>
+                    <input id="lvl_sel" type="text" value="1" maxlength="3">
+                </div>
+                <div class="field">
+                    <label>Job Lv</label>
+                    <select id="jlvl_sel">
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field" style="margin-top:14px">
+                <label>Weapon</label>
+                <select id="aspd_sel">
+                    <option value="0">Hand</option>
+                    <option value="2">One-handed Sword</option>
+                    <option value="10">Rod & Staff</option>
+                </select>
+            </div>
+            <span id="input_error">Invalid input</span>
+            <span id="overcap_error"></span>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Base Stats</div>
+            <div class="stat-row">
+                <div class="stat-box str">
+                    <div class="label">Str</div>
+                    <input id="str_sel" type="text" value="1" maxlength="3">
+                    <div class="bonus"><span id="str_bonus">0</span></div>
+                    <div class="req"><span id="str_pt_req">2</span></div>
+                </div>
+                <div class="stat-box agi">
+                    <div class="label">Agi</div>
+                    <input id="agi_sel" type="text" value="1" maxlength="3">
+                    <div class="bonus"><span id="agi_bonus">0</span></div>
+                    <div class="req"><span id="agi_pt_req">2</span></div>
+                </div>
+                <div class="stat-box vit">
+                    <div class="label">Vit</div>
+                    <input id="vit_sel" type="text" value="1" maxlength="3">
+                    <div class="bonus"><span id="vit_bonus">0</span></div>
+                    <div class="req"><span id="vit_pt_req">2</span></div>
+                </div>
+                <div class="stat-box int">
+                    <div class="label">Int</div>
+                    <input id="int_sel" type="text" value="1" maxlength="3">
+                    <div class="bonus"><span id="int_bonus">0</span></div>
+                    <div class="req"><span id="int_pt_req">2</span></div>
+                </div>
+                <div class="stat-box dex">
+                    <div class="label">Dex</div>
+                    <input id="dex_sel" type="text" value="1" maxlength="3">
+                    <div class="bonus"><span id="dex_bonus">0</span></div>
+                    <div class="req"><span id="dex_pt_req">2</span></div>
+                </div>
+                <div class="stat-box luk">
+                    <div class="label">Luk</div>
+                    <input id="luk_sel" type="text" value="1" maxlength="3">
+                    <div class="bonus"><span id="luk_bonus">0</span></div>
+                    <div class="req"><span id="luk_pt_req">2</span></div>
+                </div>
+            </div>
+            <div class="readouts">
+                <div class="readout"><span class="key">Atk</span> <span class="val" id="disp_atk">1</span> + <span id="disp_atk_plus">0</span></div>
+                <div class="readout"><span class="key">Matk</span> <span class="val" id="disp_matk_min">1</span> ~ <span id="disp_matk_max">1</span></div>
+                <div class="readout"><span class="key">Def</span> 0 + <span id="disp_def_plus">1</span></div>
+                <div class="readout"><span class="key">Mdef</span> 0 + <span id="disp_mdef_plus">1</span></div>
+                <div class="readout"><span class="key">Hit</span> <span class="val" id="disp_hit">2</span></div>
+                <div class="readout"><span class="key">Flee</span> <span class="val" id="disp_flee">2</span> + <span id="disp_flee_plus">1</span></div>
+                <div class="readout"><span class="key">Crit</span> <span class="val" id="disp_crit">1</span></div>
+                <div class="readout aspd"><span class="key">Aspd</span> <span class="val" id="disp_aspd">150</span></div>
+                <div class="readout points"><span class="key">Points Left</span> <span class="val" id="disp_statpt">48</span></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Buffs</div>
+            <div class="buffs-row">
+                <div class="field">
+                    <label>Blessing</label>
+                    <select id="buff_bless_lv">
+                        <option value="0">-</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Increase AGI</label>
+                    <select id="buff_agiup_lv">
+                        <option value="0">-</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Angelus</label>
+                    <select id="defplus_angelus_lv">
+                        <option value="0">-</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Impositio Manus</label>
+                    <select id="atk_impositio_lv">
+                        <option value="0">-</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5">5</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Wind Walk</label>
+                    <select id="flee_windwalk_lv">
+                        <option value="0">-</option>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                        <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <div class="checkbox-wrap">
+                        <input type="checkbox" id="buff_gloria_lv" value="30">
+                        <label for="buff_gloria_lv">Gloria</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Speed Potion</label>
+                    <select id="aspd_potion">
+                        <option value="0">None</option>
+                        <option value="1">Concentration</option>
+                        <option value="2">Awakening</option>
+                        <option value="3">Berserk</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Status Resistances</div>
+            <div class="res-grid">
+                <div class="res-chip"><div class="key">Stun</div><div class="val" id="sc_stun">4%</div></div>
+                <div class="res-chip"><div class="key">Poison</div><div class="val" id="sc_poison">4%</div></div>
+                <div class="res-chip"><div class="key">Silence</div><div class="val" id="sc_silence">4%</div></div>
+                <div class="res-chip"><div class="key">Bleeding</div><div class="val" id="sc_bleeding">4%</div></div>
+                <div class="res-chip"><div class="key">Sleep</div><div class="val" id="sc_sleep">4%</div></div>
+                <div class="res-chip"><div class="key">Stone</div><div class="val" id="sc_stone">3%</div></div>
+                <div class="res-chip"><div class="key">Freeze</div><div class="val" id="sc_freeze">3%</div></div>
+                <div class="res-chip"><div class="key">Curse</div><div class="val" id="sc_curse">4%</div></div>
+                <div class="res-chip"><div class="key">Blind</div><div class="val" id="sc_blind">4%</div></div>
+                <div class="res-chip"><div class="key">Confusion</div><div class="val" id="sc_confusion">4%</div></div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let lastModifiedStat = null;
+        function collect() {
+            const getNumberFromElement = elementId => parseInt(document.getElementById(elementId).value) || 0;
+            return {
+                jobId: getNumberFromElement('jid'),
+                baseLevel: getNumberFromElement('lvl_sel'),
+                jobLevel: parseInt(document.getElementById('jlvl_sel').value) || 1,
+                str: getNumberFromElement('str_sel'), agi: getNumberFromElement('agi_sel'), vit: getNumberFromElement('vit_sel'),
+                intStat: getNumberFromElement('int_sel'), dex: getNumberFromElement('dex_sel'), luk: getNumberFromElement('luk_sel'),
+                weaponTypeRight: getNumberFromElement('aspd_sel'),
+                maxAspd: 190, maxHpCap: 0,
+                blessingLevel: getNumberFromElement('buff_bless_lv'),
+                increaseAgiLevel: getNumberFromElement('buff_agiup_lv'),
+                angelusLevel: getNumberFromElement('defplus_angelus_lv'),
+                impositioLevel: getNumberFromElement('atk_impositio_lv'),
+                windWalkLevel: getNumberFromElement('flee_windwalk_lv'),
+                gloria: document.getElementById('buff_gloria_lv').checked,
+                aspdPotion: getNumberFromElement('aspd_potion'),
+                lastModifiedStat
+            };
+        }
+        function valid(formData) {
+            const isValidNumber = value => /^\d+$/.test(String(value)) && parseInt(value) <= 999;
+            if (!isValidNumber(formData.baseLevel) || !isValidNumber(formData.str) || !isValidNumber(formData.agi) || !isValidNumber(formData.vit) || !isValidNumber(formData.intStat) || !isValidNumber(formData.dex) || !isValidNumber(formData.luk)) {
+                document.getElementById('input_error').style.display = 'inline';
+                return false;
+            }
+            document.getElementById('input_error').style.display = 'none';
+            return true;
+        }
+        const statNameToInputId = { str: 'str_sel', agi: 'agi_sel', vit: 'vit_sel', intStat: 'int_sel', dex: 'dex_sel', luk: 'luk_sel' };
+        function apply(calcResponse) {
+            const statusInfo = calcResponse.statusInfo, resistances = calcResponse.resistances, pointsRequired = calcResponse.pointsRequired;
+            const overcapErrorElement = document.getElementById('overcap_error');
+            if (calcResponse.overcapped && calcResponse.clampedStat && calcResponse.clampedValue !== undefined) {
+                const clampedInputId = statNameToInputId[calcResponse.clampedStat];
+                if (clampedInputId) {
+                    const clampedStatInput = document.getElementById(clampedInputId);
+                    if (clampedStatInput) clampedStatInput.value = calcResponse.clampedValue;
+                }
+                const statDisplayName = calcResponse.clampedStat === 'intStat' ? 'Int' : calcResponse.clampedStat.charAt(0).toUpperCase() + calcResponse.clampedStat.slice(1);
+                overcapErrorElement.textContent = 'No available stat points - ' + statDisplayName + ' adjusted to ' + calcResponse.clampedValue;
+                overcapErrorElement.style.display = 'inline';
+            } else {
+                overcapErrorElement.textContent = '';
+                overcapErrorElement.style.display = 'none';
+            }
+            document.getElementById('disp_weight').textContent = statusInfo.weight;
+            document.getElementById('disp_max_hp').textContent = statusInfo.maxHp;
+            document.getElementById('disp_hp_regen').textContent = (statusInfo.hpRegen.match(/^\d+/) || ['1'])[0] + '/6s';
+            document.getElementById('disp_max_sp').textContent = statusInfo.maxSp;
+            document.getElementById('disp_sp_regen').textContent = (statusInfo.spRegen.match(/^\d+/) || ['1'])[0] + '/8s';
+            document.getElementById('str_bonus').textContent = calcResponse.jobBonuses[1] || 0;
+            document.getElementById('agi_bonus').textContent = calcResponse.jobBonuses[2] || 0;
+            document.getElementById('vit_bonus').textContent = calcResponse.jobBonuses[3] || 0;
+            document.getElementById('int_bonus').textContent = calcResponse.jobBonuses[4] || 0;
+            document.getElementById('dex_bonus').textContent = calcResponse.jobBonuses[5] || 0;
+            document.getElementById('luk_bonus').textContent = calcResponse.jobBonuses[6] || 0;
+            document.getElementById('str_pt_req').textContent = pointsRequired.str;
+            document.getElementById('agi_pt_req').textContent = pointsRequired.agi;
+            document.getElementById('vit_pt_req').textContent = pointsRequired.vit;
+            document.getElementById('int_pt_req').textContent = pointsRequired.intStat;
+            document.getElementById('dex_pt_req').textContent = pointsRequired.dex;
+            document.getElementById('luk_pt_req').textContent = pointsRequired.luk;
+            document.getElementById('disp_atk').textContent = statusInfo.baseAtk;
+            document.getElementById('disp_atk_plus').textContent = statusInfo.atkPlus;
+            document.getElementById('disp_matk_min').textContent = statusInfo.matkMin;
+            document.getElementById('disp_matk_max').textContent = statusInfo.matkMax;
+            document.getElementById('disp_def_plus').textContent = statusInfo.defPlus;
+            document.getElementById('disp_mdef_plus').textContent = statusInfo.mdefPlus;
+            document.getElementById('disp_hit').textContent = statusInfo.hit;
+            document.getElementById('disp_flee').textContent = statusInfo.flee;
+            document.getElementById('disp_flee_plus').textContent = statusInfo.fleePlus;
+            document.getElementById('disp_crit').textContent = statusInfo.critical;
+            document.getElementById('disp_aspd').textContent = statusInfo.aspd;
+            document.getElementById('disp_statpt').textContent = statusInfo.statPointsLeft;
+            document.getElementById('sc_stun').textContent = resistances.stun + '%';
+            document.getElementById('sc_poison').textContent = resistances.poison + '%';
+            document.getElementById('sc_silence').textContent = resistances.silence + '%';
+            document.getElementById('sc_bleeding').textContent = resistances.bleeding + '%';
+            document.getElementById('sc_sleep').textContent = resistances.sleep + '%';
+            document.getElementById('sc_stone').textContent = resistances.stoneCurse + '%';
+            document.getElementById('sc_freeze').textContent = resistances.freeze + '%';
+            document.getElementById('sc_curse').textContent = resistances.curse + '%';
+            document.getElementById('sc_blind').textContent = resistances.blind + '%';
+            document.getElementById('sc_confusion').textContent = resistances.confusion + '%';
+        }
+        function calc() {
+            const formData = collect();
+            if (!valid(formData)) return;
+            if (window.chrome?.webview?.postMessage) {
+                window.chrome.webview.postMessage(JSON.stringify({ type: 'calc', data: formData }));
+            } else {
+                apply({ statusInfo: {}, resistances: {}, pointsRequired: {}, jobBonuses: [] });
+            }
+        }
+        const statInputIdToStatName = { str_sel: 'str', agi_sel: 'agi', vit_sel: 'vit', int_sel: 'intStat', dex_sel: 'dex', luk_sel: 'luk' };
+        ['str_sel','agi_sel','vit_sel','int_sel','dex_sel','luk_sel'].forEach(inputId => {
+            const element = document.getElementById(inputId);
+            if (element) element.addEventListener('input', function() { lastModifiedStat = statInputIdToStatName[inputId]; calc(); });
+        });
+        ['lvl_sel','jid','jlvl_sel','aspd_sel','buff_bless_lv','buff_agiup_lv','defplus_angelus_lv','atk_impositio_lv','flee_windwalk_lv','aspd_potion'].forEach(inputId => {
+            const element = document.getElementById(inputId);
+            if (!element) return;
+            element.addEventListener(inputId.includes('_sel') ? 'input' : 'change', function() { lastModifiedStat = null; calc(); });
+            if (inputId === 'jlvl_sel') element.addEventListener('change', function() { lastModifiedStat = null; calc(); });
+        });
+        document.getElementById('buff_gloria_lv').addEventListener('change', calc);
+        const jobNames = ['Novice','Swordman','Magician','Archer'];
+        document.getElementById('jid').addEventListener('change', function() {
+            const selectedJobIndex = parseInt(this.value) || 0;
+            document.getElementById('char_sprite').className = 'character-sprite job-' + selectedJobIndex;
+            document.getElementById('char_job').textContent = jobNames[selectedJobIndex] || 'Novice';
+        });
+        if (window.chrome?.webview?.addEventListener) {
+            window.chrome.webview.addEventListener('message', event => {
+                try { apply(JSON.parse(event.data)); } catch (_) {}
+            });
+        }
+        calc();
+    </script>
+</body>
+</html>

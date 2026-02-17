@@ -34,7 +34,7 @@ public static class StatCalculator
         return result;
     }
 
-    private static (bool overcapped, string? clampedStat, int clampedValue) ClampStatsIfOvercapped(CharacterStats stats, CharacterConfig config, int[] jobBonuses, string? lastModifiedStat)
+    private static (bool overcapped, string? clampedStat, int clampedValue) ClampStatsIfOvercapped(CharacterStats stats, CharacterConfig config, int[] jobBonuses, string? lastModifiedStat) // Overcap reduce
     {
         var statPointsRemaining = CalcStatPointsLeft(stats, config, jobBonuses);
         if (statPointsRemaining >= 0) return (false, null, 0);
@@ -57,7 +57,7 @@ public static class StatCalculator
         return (true, statToReduce, getStatValue());
     }
 
-    private static string? GetHighestBaseStat(CharacterStats stats, int[] jobBonuses)
+    private static string? GetHighestBaseStat(CharacterStats stats, int[] jobBonuses) // Pick to reduce
     {
         var statNameToBaseValue = new[] { (stats.Str - jobBonuses[1], "str"), (stats.Agi - jobBonuses[2], "agi"), (stats.Vit - jobBonuses[3], "vit"), (stats.Int - jobBonuses[4], "intStat"), (stats.Dex - jobBonuses[5], "dex"), (stats.Luk - jobBonuses[6], "luk") };
         return statNameToBaseValue.OrderByDescending(entry => entry.Item1).FirstOrDefault(entry => entry.Item1 > 1).Item2;
@@ -92,7 +92,7 @@ public static class StatCalculator
         _ => 1
     };
 
-    private static void ApplyBuffs(CharacterStats stats, CharacterBuffs buffs)
+    private static void ApplyBuffs(CharacterStats stats, CharacterBuffs buffs) // Blessing, AGI, Gloria
     {
         stats.StrBonus += buffs.BlessingLevel;
         stats.IntBonus += buffs.BlessingLevel;
@@ -102,41 +102,41 @@ public static class StatCalculator
             stats.LukBonus += 30;
     }
 
-    private static int GetIncreaseAgiBonus(int level) => level == 0 ? 0 : level + 2;
+    private static int GetIncreaseAgiBonus(int level) => level == 0 ? 0 : level + 2; // Increase AGI
 
     private static StatusInfo CalcStatusInfo(CharacterStats stats, CharacterConfig config, CharacterBuffs buffs)
     {
         var statusInfo = new StatusInfo();
 
-        statusInfo.MaxHp = CalcMaxHp(stats, config);
-        statusInfo.MaxSp = CalcMaxSp(stats, config);
-        statusInfo.HpRegen = CalcHpRegen(stats.VitTotal, statusInfo.MaxHp);
-        statusInfo.SpRegen = CalcSpRegen(stats.IntTotal, statusInfo.MaxSp);
+        statusInfo.MaxHp = CalcMaxHp(stats, config); // Vit + level
+        statusInfo.MaxSp = CalcMaxSp(stats, config); // Int + level
+        statusInfo.HpRegen = CalcHpRegen(stats.VitTotal, statusInfo.MaxHp); // Vit, max HP
+        statusInfo.SpRegen = CalcSpRegen(stats.IntTotal, statusInfo.MaxSp); // Int, max SP
 
-        var baseAttack = CalcBaseAtk(stats, config, buffs);
+        var baseAttack = CalcBaseAtk(stats, config, buffs); // Str/Dex weapon
         statusInfo.BaseAtk = baseAttack;
         statusInfo.AtkPlus = 0;
 
-        statusInfo.MatkMin = stats.IntTotal + (stats.IntTotal / 7) * (stats.IntTotal / 7);
-        statusInfo.MatkMax = stats.IntTotal + (stats.IntTotal / 5) * (stats.IntTotal / 5);
+        statusInfo.MatkMin = stats.IntTotal + (stats.IntTotal / 7) * (stats.IntTotal / 7); // Int formula
+        statusInfo.MatkMax = stats.IntTotal + (stats.IntTotal / 5) * (stats.IntTotal / 5); // Int formula
 
-        statusInfo.Hit = config.BaseLevel + stats.DexTotal;
-        statusInfo.Flee = config.BaseLevel + stats.AgiTotal + GetWindWalkBonus(buffs.WindWalkLevel);
-        statusInfo.FleePlus = (stats.LukTotal + 10) * 10 / 100;
+        statusInfo.Hit = config.BaseLevel + stats.DexTotal; // Level + Dex
+        statusInfo.Flee = config.BaseLevel + stats.AgiTotal + GetWindWalkBonus(buffs.WindWalkLevel); // Level + Agi
+        statusInfo.FleePlus = (stats.LukTotal + 10) * 10 / 100; // Luk formula
 
         statusInfo.BaseDef = 0;
-        statusInfo.DefPlus = CalcDefPlus(stats, buffs);
+        statusInfo.DefPlus = CalcDefPlus(stats, buffs); // Vit + Angelus
         statusInfo.BaseMdef = 0;
-        statusInfo.MdefPlus = stats.IntTotal;
+        statusInfo.MdefPlus = stats.IntTotal; // Int
 
-        statusInfo.Critical = (stats.LukTotal * 3 + 10) * 10 / 100;
-        statusInfo.Aspd = CalcAspd(stats, config, buffs);
-        statusInfo.Weight = CalcWeight(stats, config);
+        statusInfo.Critical = (stats.LukTotal * 3 + 10) * 10 / 100; // Luk formula
+        statusInfo.Aspd = CalcAspd(stats, config, buffs); // Agi, Dex, weapon
+        statusInfo.Weight = CalcWeight(stats, config); // Str + job
 
         return statusInfo;
     }
 
-    private static int CalcMaxHp(CharacterStats stats, CharacterConfig config)
+    private static int CalcMaxHp(CharacterStats stats, CharacterConfig config) // Vit, level, job
     {
         var hpSigmaBonus = config.BaseLevel < HpSigmaVal.Length ? HpSigmaVal[config.BaseLevel] : 0;
         var baseHp = 35 + config.BaseLevel * JobData.GetJobCoe(JobData.HpCoe2Index) / 100 + hpSigmaBonus;
@@ -148,17 +148,18 @@ public static class StatCalculator
         return (int)baseHp;
     }
 
-    private static int CalcMaxSp(CharacterStats stats, CharacterConfig config)
+    private static int CalcMaxSp(CharacterStats stats, CharacterConfig config) // Int, level, job
     {
         var baseSp = 10 + config.BaseLevel * JobData.GetJobCoe(JobData.SpCoeIndex) / 100;
         baseSp += baseSp * stats.IntTotal / 100;
         return (int)baseSp;
     }
 
+    // Vit + max HP
     private static string CalcHpRegen(int vit, int maxHp) =>
         $"{1 + vit / 5 + maxHp / 200} per 6s standing (per 3s sitting)";
 
-    private static string CalcSpRegen(int intelligence, int maxSp)
+    private static string CalcSpRegen(int intelligence, int maxSp) // Int + max SP
     {
         var regenPerTick = 1 + intelligence / 6 + maxSp / 100;
         if (intelligence >= 120)
@@ -166,7 +167,7 @@ public static class StatCalculator
         return $"{regenPerTick} per 8s standing (per 4s sitting)";
     }
 
-    private static int CalcBaseAtk(CharacterStats stats, CharacterConfig config, CharacterBuffs buffs)
+    private static int CalcBaseAtk(CharacterStats stats, CharacterConfig config, CharacterBuffs buffs) // Str or Dex + weapon
     {
         var dexBasedWeaponTypes = new[] { 11, 13, 14, 17, 18, 19, 20, 21 };
         var isDexWeapon = Array.IndexOf(dexBasedWeaponTypes, config.WeaponTypeRight) >= 0;
@@ -180,17 +181,18 @@ public static class StatCalculator
         return primaryStatForAttack;
     }
 
-    private static int GetImpositioBonus(int level) => level switch { 1 => 5, 2 => 10, 3 => 15, 4 => 20, 5 => 25, _ => 0 };
+    private static int GetImpositioBonus(int level) => level switch { 1 => 5, 2 => 10, 3 => 15, 4 => 20, 5 => 25, _ => 0 }; // Impositio Manus
 
-    private static int GetWindWalkBonus(int level) => level switch { 1 => 1, 2 => 1, 3 => 2, 4 => 2, 5 => 3, 6 => 3, 7 => 4, 8 => 4, 9 => 5, 10 => 5, _ => 0 };
+    private static int GetWindWalkBonus(int level) => level switch { 1 => 1, 2 => 1, 3 => 2, 4 => 2, 5 => 3, 6 => 3, 7 => 4, 8 => 4, 9 => 5, 10 => 5, _ => 0 }; // Wind Walk
 
-    private static int CalcDefPlus(CharacterStats stats, CharacterBuffs buffs)
+    private static int CalcDefPlus(CharacterStats stats, CharacterBuffs buffs) // Vit * Angelus
     {
         var baseDefense = stats.VitTotal;
         var angelusMultiplier = GetAngelusMultiplier(buffs.AngelusLevel);
         return (int)(baseDefense * angelusMultiplier);
     }
 
+    // Angelus def %
     private static float GetAngelusMultiplier(int level) => level switch
     {
         1 => 1.05f,
@@ -206,7 +208,7 @@ public static class StatCalculator
         _ => 1f
     };
 
-    private static int CalcAspd(CharacterStats stats, CharacterConfig config, CharacterBuffs buffs)
+    private static int CalcAspd(CharacterStats stats, CharacterConfig config, CharacterBuffs buffs) // Agi, Dex, weapon delay
     {
         var weaponDelayIndex = config.WeaponTypeRight + JobData.WidToJCoe;
         var attackMotionDelay = JobData.GetJobCoe(weaponDelayIndex);
@@ -223,6 +225,7 @@ public static class StatCalculator
         return (int)attackSpeed;
     }
 
+    // ASPD potion %
     private static double GetAspdPotionBonus(AspdPotionType type) => type switch
     {
         AspdPotionType.Concentration => 0.10,
@@ -231,12 +234,12 @@ public static class StatCalculator
         _ => 0
     };
 
-    private static int CalcWeight(CharacterStats stats, CharacterConfig config)
+    private static int CalcWeight(CharacterStats stats, CharacterConfig config) // Str, job base
     {
         return (JobData.GetJobCoe(JobData.WeightCoeIndex) + stats.Str * 300) / 10;
     }
 
-    private static StatPointsRequired CalcPointsRequired(CharacterStats stats, int[] jobBonuses)
+    private static StatPointsRequired CalcPointsRequired(CharacterStats stats, int[] jobBonuses) // Cost per +1
     {
         return new StatPointsRequired
         {
@@ -249,13 +252,13 @@ public static class StatCalculator
         };
     }
 
-    private static int CalcStatPointsLeft(CharacterStats stats, CharacterConfig config, int[] jobBonuses)
+    private static int CalcStatPointsLeft(CharacterStats stats, CharacterConfig config, int[] jobBonuses) // Level - spent
     {
         var totalPointsSpent = CalcTotalStatUsed(stats, jobBonuses);
         return JobData.GetStatPoints(config.BaseLevel) - totalPointsSpent;
     }
 
-    private static int CalcTotalStatUsed(CharacterStats stats, int[] jobBonuses)
+    private static int CalcTotalStatUsed(CharacterStats stats, int[] jobBonuses) // Sum points spent
     {
         var baseStatsWithoutJobBonus = new[] { stats.Str - jobBonuses[1], stats.Agi - jobBonuses[2], stats.Vit - jobBonuses[3], stats.Int - jobBonuses[4], stats.Dex - jobBonuses[5], stats.Luk - jobBonuses[6] };
         var totalPointsUsed = 0;
@@ -267,7 +270,7 @@ public static class StatCalculator
         return totalPointsUsed;
     }
 
-    private static int CalcPointsUsedForSingleStat(int baseStatValue, int pointsCostPerLevel)
+    private static int CalcPointsUsedForSingleStat(int baseStatValue, int pointsCostPerLevel) // Tier cost
     {
         if (baseStatValue <= 1) return 0;
         if (baseStatValue <= 11) return baseStatValue * 2 - 2;
@@ -283,7 +286,7 @@ public static class StatCalculator
         return pointsUsed;
     }
 
-    private static StatusChangeResistances CalcResistances(CharacterStats stats, CharacterConfig config)
+    private static StatusChangeResistances CalcResistances(CharacterStats stats, CharacterConfig config) // Vit, Int, Luk
     {
         var stun = 3 + stats.VitTotal;
         var sleep = 3 + stats.IntTotal;

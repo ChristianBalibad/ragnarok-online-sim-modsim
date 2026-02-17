@@ -1,10 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "+pcfuZd+sd8=",
-  "success": true,
+  "dgSpecHash": "cXdcmTyuZ2w=",
+  "success": false,
   "projectFilePath": "C:\\Users\\Thianiiii\\Documents\\C# Codes\\RagnarokOnlineSimulator\\RagnarokOnlineSimulator.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Thianiiii\\.nuget\\packages\\microsoft.web.webview2\\1.0.3719.77\\microsoft.web.webview2.1.0.3719.77.nupkg.sha512"
-  ],
-  "logs": []
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Unable to load the service index for source https://api.nuget.org/v3/index.json.\r\n  The proxy tunnel request to proxy 'http://127.0.0.1:62280/' failed with status code '403'.\"",
+      "projectPath": "C:\\Users\\Thianiiii\\Documents\\C# Codes\\RagnarokOnlineSimulator\\RagnarokOnlineSimulator.csproj",
+      "filePath": "C:\\Users\\Thianiiii\\Documents\\C# Codes\\RagnarokOnlineSimulator\\RagnarokOnlineSimulator.csproj",
+      "libraryId": "Microsoft.Web.WebView2",
+      "targetGraphs": []
+    }
+  ]
 }

@@ -6,6 +6,7 @@
     <title>RO Stat Simulator</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow-x: hidden; }
         body {
             font-family: "Segoe UI", system-ui, sans-serif;
             background: #1a1614;
@@ -26,54 +27,95 @@
             border-bottom: 1px solid #4a423a;
         }
         .main {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 20px 24px 32px;
+            overflow-x: hidden;
+            width: 100%;
         }
         .app-layout {
             display: grid;
-            grid-template-columns: 220px 1fr;
-            gap: 24px;
+            grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+            gap: 28px;
             align-items: start;
+            min-width: 0;
         }
         .character-slot {
             position: sticky;
             top: 20px;
+            min-width: 0;
         }
         .character-frame {
-            background: linear-gradient(180deg, #2e2a26 0%, #252220 100%);
-            border: 2px solid #4a423a;
-            border-radius: 10px;
+            background: linear-gradient(180deg, #2e2a26 0%, #1f1c1a 100%);
+            border: 1px solid #4a423a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            border-left: 2px solid rgba(184,149,110,0.4);
+        }
+        .character-header {
+            background: linear-gradient(90deg, #3d3630 0%, #2a2520 100%);
+            padding: 14px 18px;
+            border-bottom: 1px solid #4a423a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .character-header-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #8b7355;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .character-level-badge {
+            background: linear-gradient(180deg, #4a423a 0%, #3d3630 100%);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #d4a84a;
+            border: 1px solid #5a5248;
+        }
+        .character-level-badge span { color: #e8dcc8; }
+        .character-body {
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
             text-align: center;
         }
+        .character-sprite-wrap {
+            position: relative;
+            margin: 0 auto 20px;
+            width: 160px;
+            height: 200px;
+        }
         .character-sprite {
-            width: 100px;
-            height: 120px;
-            margin: 0 auto 16px;
-            background: #1a1614;
-            border-radius: 8px;
-            border: 1px solid #4a423a;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #252220 0%, #1a1614 100%);
+            border-radius: 12px;
+            border: 2px solid #4a423a;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
         }
         .character-sprite svg {
-            width: 70%;
-            height: 70%;
-            opacity: 0.9;
+            width: 75%;
+            height: 75%;
+            opacity: 0.95;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
         .character-sprite.job-0 svg { color: #8b7355; }
         .character-sprite.job-1 svg { color: #d45448; }
         .character-sprite.job-2 svg { color: #a86cd4; }
         .character-sprite.job-3 svg { color: #4cb070; }
         .job-name {
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: #b8956e;
-            margin-bottom: 14px;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
         }
         .stats-column { min-width: 0; }
         .panel {
@@ -81,6 +123,7 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 16px;
+            min-width: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
             border: 1px solid #4a423a;
         }
@@ -121,13 +164,14 @@
         }
         .stat-row {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 12px;
         }
         .stat-box {
             background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
             border-radius: 6px;
             padding: 12px;
+            min-width: 0;
             border: 1px solid #4a423a;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3);
         }
@@ -153,15 +197,19 @@
         .stat-box .bonus::before { content: "Bonus +"; font-weight: 500; }
         .stat-box .req {
             margin-top: 6px;
-            padding: 3px 6px;
+            padding: 4px 8px;
             background: rgba(184,149,110,0.15);
             border: 1px solid rgba(184,149,110,0.35);
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
             color: #d4a84a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
-        .stat-box .req::before { content: "Pts to +1: "; font-weight: 500; color: #8b7355; }
+        .stat-box .req::before { content: "Pts to +1:"; font-weight: 500; color: #8b7355; }
         .stat-box.str { border-top: 2px solid #d45448; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(212,84,72,0.3); }
         .stat-box.agi { border-top: 2px solid #4cb070; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(76,176,112,0.3); }
         .stat-box.vit { border-top: 2px solid #d45448; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(212,84,72,0.3); }
@@ -169,34 +217,83 @@
         .stat-box.dex { border-top: 2px solid #5a9ae8; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(90,154,232,0.3); }
         .stat-box.luk { border-top: 2px solid #e8b040; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(232,176,64,0.3); }
         .readouts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
             margin-top: 16px;
+            border: 1px solid #4a423a;
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #2e2a26 0%, #252220 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.3);
         }
         .readout {
             display: flex;
-            align-items: baseline;
-            gap: 6px;
-            padding: 8px 14px;
-            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
-            border-radius: 6px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
             font-size: 0.85rem;
-            border: 1px solid #4a423a;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.2);
+            border-bottom: 1px solid #3d3630;
+            border-right: 1px solid #3d3630;
+            transition: background 0.15s ease;
+        }
+        .readout:hover { background: rgba(255,255,255,0.02); }
+        .readout:nth-child(2n) { border-right: none; }
+        .readout:last-child { border-bottom: none; }
+        .readout-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .readout-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .readout-icon svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.9;
+        }
+        .readout.atk .readout-icon { background: rgba(212,84,72,0.2); color: #e87870; }
+        .readout.matk .readout-icon { background: rgba(168,108,212,0.2); color: #a86cd4; }
+        .readout.def .readout-icon { background: rgba(90,154,232,0.2); color: #5a9ae8; }
+        .readout.mdef .readout-icon { background: rgba(124,184,232,0.2); color: #7cb8e8; }
+        .readout.hit .readout-icon { background: rgba(232,176,64,0.2); color: #e8b040; }
+        .readout.flee .readout-icon { background: rgba(76,176,112,0.2); color: #60c878; }
+        .readout.crit .readout-icon { background: rgba(212,84,72,0.25); color: #e85450; }
+        .readout.aspd .readout-icon { background: rgba(76,176,112,0.2); color: #60c878; }
+        .readout.points .readout-icon { background: rgba(184,149,110,0.25); color: #d4a84a; }
+        .readout .key {
             color: #c4b59a;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
-        .readout .key { color: #8b7355; font-size: 0.75rem; }
-        .readout .val, .readout span:not(.key) { font-weight: 600; font-variant-numeric: tabular-nums; color: #e8dcc8; }
-        .readout.hp .val { color: #e87870; }
-        .readout.sp .val { color: #70b0e8; }
-        .readout.aspd .val { color: #60c878; }
+        .readout .val-wrap {
+            flex: 1;
+            text-align: right;
+            flex-shrink: 0;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: #e8dcc8;
+        }
+        .readout .val, .readout .val-wrap span { font-weight: 600; font-variant-numeric: tabular-nums; color: inherit; }
+        .readout.atk .val-wrap { color: #e87870; }
+        .readout.matk .val-wrap { color: #c4a0e0; }
+        .readout.aspd .val-wrap { color: #60c878; }
+        .readout.points .val-wrap { color: #d4a84a; font-size: 0.95rem; }
         .readout.points {
-            border-color: #b8956e;
-            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
-            box-shadow: inset 0 0 0 1px rgba(184,149,110,0.4), 0 2px 4px rgba(0,0,0,0.2);
+            border-color: rgba(184,149,110,0.4);
+            background: linear-gradient(135deg, rgba(184,149,110,0.08) 0%, transparent 50%);
+            box-shadow: inset 0 0 0 1px rgba(184,149,110,0.2);
         }
-        .readout.points .val { color: #d4a84a; font-size: 0.95rem; }
         .buffs-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
         .buffs-row .field { flex: 0 0 auto; }
         .checkbox-wrap { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
@@ -223,11 +320,50 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
-        .character-frame .vitals {
-            grid-template-columns: 1fr;
-            gap: 8px;
+        .character-vitals {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
-        .character-frame .vital { padding: 10px; }
+        .vital-bar-wrap {
+            text-align: left;
+        }
+        .vital-bar-wrap .key-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .vital-bar-wrap .key { font-size: 0.72rem; color: #8b7355; font-weight: 600; }
+        .vital-bar-wrap .val { font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .vital-bar-wrap .sub { font-size: 0.65rem; color: #6b5d4d; margin-top: 4px; }
+        .vital-bar-track {
+            height: 10px;
+            background: #1a1614;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #3d3630;
+        }
+        .vital-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.2s ease;
+        }
+        .vital-bar-wrap.hp .vital-bar-fill { background: linear-gradient(90deg, #c45448 0%, #e87870 100%); }
+        .vital-bar-wrap.sp .vital-bar-fill { background: linear-gradient(90deg, #5088c0 0%, #70b0e8 100%); }
+        .vital-bar-wrap.hp .val { color: #e87870; }
+        .vital-bar-wrap.sp .val { color: #70b0e8; }
+        .character-weight {
+            background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
+            border-radius: 8px;
+            padding: 12px 16px;
+            border: 1px solid #4a423a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .character-weight .key { font-size: 0.78rem; color: #8b7355; font-weight: 600; }
+        .character-weight .val { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #d4a84a; }
         .vital {
             background: linear-gradient(180deg, #3d3630 0%, #2a2520 100%);
             border-radius: 6px;
@@ -254,28 +390,46 @@
         <div class="app-layout">
             <aside class="character-slot">
                 <div class="character-frame">
-                    <div class="character-sprite job-0" id="char_sprite">
-                        <svg viewBox="0 0 64 80" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="32" cy="18" r="10"/>
-                            <path d="M26 32c-4 4-8 12-8 20v20h28V52c0-8-4-16-8-20-2-2-4-2-6-2H32c-2 0-4 0-6 2z"/>
-                            <path d="M20 38l4 2v8l-4 2M44 38l-4 2v8l4 2" stroke="currentColor" stroke-width="2" fill="none"/>
-                        </svg>
+                    <div class="character-header">
+                        <span class="character-header-title">Status</span>
+                        <span class="character-level-badge" id="char_level_badge">Lv <span id="char_base_lv">1</span></span>
                     </div>
-                    <div class="job-name" id="char_job">Novice</div>
-                    <div class="vitals">
-                        <div class="vital hp">
-                            <div class="key">HP</div>
-                            <div class="val" id="disp_max_hp">40</div>
-                            <div class="sub" id="disp_hp_regen">1/6s</div>
+                    <div class="character-body">
+                        <div class="character-sprite-wrap">
+                            <div class="character-sprite job-0" id="char_sprite">
+                                <svg viewBox="0 0 64 80" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="32" cy="18" r="10"/>
+                                    <path d="M26 32c-4 4-8 12-8 20v20h28V52c0-8-4-16-8-20-2-2-4-2-6-2H32c-2 0-4 0-6 2z"/>
+                                    <path d="M20 38l4 2v8l-4 2M44 38l-4 2v8l4 2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="vital sp">
-                            <div class="key">SP</div>
-                            <div class="val" id="disp_max_sp">11</div>
-                            <div class="sub" id="disp_sp_regen">1/8s</div>
-                        </div>
-                        <div class="vital wt">
-                            <div class="key">Weight</div>
-                            <div class="val" id="disp_weight">2030</div>
+                        <div class="job-name" id="char_job">Novice</div>
+                        <div class="character-vitals">
+                            <div class="vital-bar-wrap hp">
+                                <div class="key-row">
+                                    <span class="key">HP</span>
+                                    <span class="val" id="disp_max_hp">40</span>
+                                </div>
+                                <div class="vital-bar-track">
+                                    <div class="vital-bar-fill" id="hp_bar_fill" style="width:100%"></div>
+                                </div>
+                                <div class="sub" id="disp_hp_regen">1/6s</div>
+                            </div>
+                            <div class="vital-bar-wrap sp">
+                                <div class="key-row">
+                                    <span class="key">SP</span>
+                                    <span class="val" id="disp_max_sp">11</span>
+                                </div>
+                                <div class="vital-bar-track">
+                                    <div class="vital-bar-fill" id="sp_bar_fill" style="width:100%"></div>
+                                </div>
+                                <div class="sub" id="disp_sp_regen">1/8s</div>
+                            </div>
+                            <div class="character-weight">
+                                <span class="key">Weight</span>
+                                <span class="val" id="disp_weight">2030</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -359,15 +513,69 @@
                 </div>
             </div>
             <div class="readouts">
-                <div class="readout"><span class="key">Atk</span> <span class="val" id="disp_atk">1</span> + <span id="disp_atk_plus">0</span></div>
-                <div class="readout"><span class="key">Matk</span> <span class="val" id="disp_matk_min">1</span> ~ <span id="disp_matk_max">1</span></div>
-                <div class="readout"><span class="key">Def</span> 0 + <span id="disp_def_plus">1</span></div>
-                <div class="readout"><span class="key">Mdef</span> 0 + <span id="disp_mdef_plus">1</span></div>
-                <div class="readout"><span class="key">Hit</span> <span class="val" id="disp_hit">2</span></div>
-                <div class="readout"><span class="key">Flee</span> <span class="val" id="disp_flee">2</span> + <span id="disp_flee_plus">1</span></div>
-                <div class="readout"><span class="key">Crit</span> <span class="val" id="disp_crit">1</span></div>
-                <div class="readout aspd"><span class="key">Aspd</span> <span class="val" id="disp_aspd">150</span></div>
-                <div class="readout points"><span class="key">Points Left</span> <span class="val" id="disp_statpt">48</span></div>
+                <div class="readout atk">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 8H3l4 4-2 8 7-5 7 5-2-8 4-4h-6l-3-6z"/></svg></div>
+                        <span class="key">Atk</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_atk">1</span> + <span id="disp_atk_plus">0</span></span>
+                </div>
+                <div class="readout matk">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2v4l2 2-2 2v2l4-1v2l-6 4-2-3 2-2-3-1v-2l4-1V8l-2-2 2-2V2h2z"/><circle cx="17" cy="7" r="2" opacity="0.8"/></svg></div>
+                        <span class="key">Matk</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_matk_min">1</span> ~ <span id="disp_matk_max">1</span></span>
+                </div>
+                <div class="readout def">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4zm0 2.5l5.5 2.75V11c0 3.5-2.5 6.5-5.5 7.5-3-1-5.5-4-5.5-7.5V7.25L12 4.5z"/></svg></div>
+                        <span class="key">Def</span>
+                    </div>
+                    <span class="val-wrap">0 + <span id="disp_def_plus">1</span></span>
+                </div>
+                <div class="readout mdef">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 6v6c0 5 4 9 8 10 4-1 8-5 8-10V6l-8-4zm0 2.5l5.5 2.75V11c0 3.5-2.5 6.5-5.5 7.5-3-1-5.5-4-5.5-7.5V7.25L12 4.5z"/><circle cx="12" cy="12" r="3" opacity="0.5"/></svg></div>
+                        <span class="key">Mdef</span>
+                    </div>
+                    <span class="val-wrap">0 + <span id="disp_mdef_plus">1</span></span>
+                </div>
+                <div class="readout hit">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+                        <span class="key">Hit</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_hit">2</span></span>
+                </div>
+                <div class="readout flee">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 18l-2-4 2-3 2 2 4-6 2 1-4 6 2 3-4 4z"/></svg></div>
+                        <span class="key">Flee</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_flee">2</span> + <span id="disp_flee_plus">1</span></span>
+                </div>
+                <div class="readout crit">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 1-4 4 2 6-6-4-6 4 2-6-4-4 6-1 2-6z"/></svg></div>
+                        <span class="key">Crit</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_crit">1</span></span>
+                </div>
+                <div class="readout aspd">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 11l5-5 5 5-2 2-3-3-3 3-2-2zm0 6l5-5 5 5-2 2-3-3-3 3-2-2z"/></svg></div>
+                        <span class="key">Aspd</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_aspd">150</span></span>
+                </div>
+                <div class="readout points">
+                    <div class="readout-left">
+                        <div class="readout-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z"/></svg></div>
+                        <span class="key">Pts Left</span>
+                    </div>
+                    <span class="val-wrap"><span id="disp_statpt">48</span></span>
+                </div>
             </div>
         </div>
 
@@ -571,11 +779,19 @@
             document.getElementById('char_sprite').className = 'character-sprite job-' + selectedJobIndex;
             document.getElementById('char_job').textContent = jobNames[selectedJobIndex] || 'Novice';
         });
+        function syncCharacterLevel() {
+            const lv = document.getElementById('lvl_sel')?.value || '1';
+            const el = document.getElementById('char_base_lv');
+            if (el) el.textContent = lv;
+        }
+        document.getElementById('lvl_sel')?.addEventListener('input', syncCharacterLevel);
+        document.getElementById('lvl_sel')?.addEventListener('change', syncCharacterLevel);
         if (window.chrome?.webview?.addEventListener) {
             window.chrome.webview.addEventListener('message', event => {
                 try { apply(JSON.parse(event.data)); } catch (_) {}
             });
         }
+        syncCharacterLevel();
         calc();
     </script>
 </body>
